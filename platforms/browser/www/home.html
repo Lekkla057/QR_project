@@ -521,10 +521,35 @@
         } localStorage.clear();
     });
     function getHomeData() {
-        let code = localStorage.getItem('code')
- 
+         let code = localStorage.getItem('code')
        // document.getElementById("search").value = code;
-       if(code){detail(code)}
+       if(code){detail(code.toString())
+        var docRef = db.collection("UI").doc("home");
+            docRef.get().then(function (doc) {
+                if (doc.exists) {
+                    console.log("Document data:", doc.data());
+                    var data = doc.data();
+                    $('#appname').html(data.appname);
+                    var style = "background: url('" + data.slides[0] + "')no-repeat center;background-size: contain;";
+                    $('#carousel1').attr('style', style);
+                    var style = "background: url('" + data.slides[1] + "')no-repeat center;background-size: contain;";
+                    $('#carousel2').attr('style', style);
+                    var style = "background: url('" + data.slides[2] + "')no-repeat center;background-size: contain;";
+                    $('#carousel3').attr('style', style);
+                    $('#icon1').attr('icon', data.categories[0].icon);
+                    $('#Category_1_name').html(data.categories[0].name);
+                    var icon_template = $('#icon_template').html();
+                    var html = ejs.render(icon_template, { categories: data.categories });
+                    $('#icon').html(html);
+                } else {
+
+                    console.log("No such document!");
+                }
+            }).catch(function (error) {
+                console.log("Error getting document:", error);
+            });
+       
+       }
        else{
             var docRef = db.collection("UI").doc("home");
             docRef.get().then(function (doc) {
@@ -612,6 +637,7 @@
         //  getproductData(name1)
     }
     function detail(pid) {
+        
         localStorage.setItem('id', pid);
         myNavigator.pushPage('tab4.html')
         showdetail()
@@ -620,6 +646,7 @@
     }
     function showdetail() {
         var id = localStorage.getItem('id');
+        
         db.collection("PRODUCTS").where("pid", "==", id).get()
             .then(function (querySnapshot) {
                 // doc.data() is never undefined for query doc snapshots
